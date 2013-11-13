@@ -1,0 +1,60 @@
+<html>
+
+    <head>
+        <title>Prototype inheritance</title>
+        
+        <script type="text/javascript" src="dots.js"></script>
+        
+        <link rel="stylesheet" type="text/css" href="bootstrap.css" />
+        
+        <style type="text/css">
+            body,html {
+                border:     none;
+                padding:    0;
+                margin:     0;
+                width:      100%;
+            }
+            
+            body {
+                width:      100%;
+                text-align: center;
+            }
+            
+            canvas#dot-space {
+                width:      800px;
+                height:     450px;
+                border:     3px solid #336699;
+                margin:     20px auto;
+            }
+            
+            .controls {
+                width:      800px;
+                margin:     5px auto;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>DOTS <small>A Javascript Prototyping Example</small></h1>
+        
+        <p>The DOTS Javascript is based on two primary class structures, a Dot, which controls the movement and display of the dots on the canvas, and the Engine, which controls the animation timing, and Dot generation.</p>
+        
+        <p>There is also a light weight DOM management JSON class that handles DOM requests and allows very basic manipulations of the interface and its behaviors.</p>
+        
+        
+        
+        <canvas id="dot-space" height="450" width="800"></canvas>
+        <div id="controls" class="controls">
+            <label>Dot count:</label><input id="dot-count" value="10" />
+            <button class="btn btn-success" id="start">Start</button>
+            <button class="btn btn-warning" id="proceed" disabled="DISABLED">Pause</button>
+            <button class="btn btn-danger" id="stop" disabled="DISABLED">Stop</button><br />
+            <input type="checkbox" id="clearCanvas" value="1" checked="CHECKED" /> Clear Canvas<br />
+            <input type="checkbox" id="showVector" value="1"/> Show Vector<br />
+            <input type="checkbox" id="showInfo" value="1" /> Show Info<br />
+            <input type="checkbox" id="avoidEachOther" value="1" /> Avoid Each Other<br />
+        </div>
+        
+
+    </body>
+</html>
