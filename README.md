@@ -158,9 +158,9 @@ To handle querying the DOM more easily, I implemented my own flavor of DOM query
 Querying is done in much the same fashion as jQuery.  Call the 'dom' method with the object query string as a parameter like so:
 
 ```javascript
-  dom('#some-dom-object-id');
-  dom('.some-dom-object-class');
-  dom('some-tag-name');
+  dom('#some-dom-object-id');     // Query an object by ID
+  dom('.some-dom-object-class');  // Query objects by class name.
+  dom('some-tag-name');           // Query objects by tag name.
 ```
 
 ####Wiring Click Events
