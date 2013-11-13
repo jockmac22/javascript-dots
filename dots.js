@@ -41,6 +41,7 @@ Math.PI2 = Math.PI * 2;
  */
 function Dot(engine, id, x, y, radius, fillStyle, direction, speed, context) {
     this.engine = engine;
+    this.ctx = context;
     this.id = id;
     this.x = x;
     this.y = y;
@@ -49,7 +50,6 @@ function Dot(engine, id, x, y, radius, fillStyle, direction, speed, context) {
     this.direction = direction;
     this.speed = speed;
     this.safeRange = this.radius * 2;
-    this.ctx = context;
     this.showVector = true;
     this.showInfo = true;
     this.avoidEachOther = false;
@@ -108,21 +108,23 @@ Dot.prototype = {
         var vector = this.calculateDeltaVector(delta);
         this.offset({ x: vector.xOff, y: vector.yOff });
 
-        for (var s in this.sectors) {
-            var sector = this.sectors[s];
-            for (dotId in sector) {
-                if (dotId != this.id) {
-                    var dot = sector[dotId];
-                    var dotDistance = this.calculateDistance(dot);
-                    if (dotDistance <= this.safeRange) {
-                        var angle = this.calculateAvoidanceAngle(dot);
-                        this.offset({ x: -vector.xOff, y: -vector.yOff });
-                        this.rotate(angle);
-                        dot.rotate(angle);
-                        this.offset({ x: vector.xOff, y: vector.yOff });
-                    }
-                }
-            }
+        if (this.avoidEachOther) {
+	        for (var s in this.sectors) {
+	            var sector = this.sectors[s];
+	            for (dotId in sector) {
+	                if (dotId != this.id) {
+	                    var dot = sector[dotId];
+	                    var dotDistance = this.calculateDistance(dot);
+	                    if (dotDistance <= this.safeRange) {
+	                        var angle = this.calculateAvoidanceAngle(dot);
+	                        this.offset({ x: -vector.xOff, y: -vector.yOff });
+	                        this.rotate(angle);
+	                        dot.rotate(angle);
+	                        this.offset({ x: vector.xOff, y: vector.yOff });
+	                    }
+	                }
+	            }
+	        }
         }
 
         var ob = this.isOutOfBounds();
@@ -179,7 +181,8 @@ Dot.prototype = {
     },
 
     /**
-     * Determines the amount of rotation necessary for two dots to avoid each other.
+     * Determines the amount of rotation necessary for this dot and another to
+     * avoid each other.
      *
      * @param dot The dot object to be avoided.
      * @returns And angle (in radians) to adjust the rotation of the current dot.
@@ -218,19 +221,20 @@ Dot.prototype = {
     },
 
     /**
-     * Sets the dots current vector based on its current direction and speed.
+     * Recalculates and sets the dots current vector based on its current
+     * direction and speed.
      */
     setVector: function() {
         this.vector = this.calculateVector();
     },
 
     /**
-     * Sets the vector position for the dot, assuming that the delta time is 1.
+     * Calculates the vector position for the dot, assuming that the delta time is 1.
      * This provides us with the necessary speed and direction for each step the
      * dot will take in its path.
      */
     calculateVector: function(direction) {
-        direction = direction || this.direction
+        direction = direction || this.direction;
         var delta = 1;
         var dist = this.speed * delta;
         var xOff = dist * Math.cos(direction);
@@ -262,18 +266,10 @@ Dot.prototype = {
     },
 
     /**
-     * Moves the dot to the point provided.
+     * Determines if the dot has moved out of bounds, returning false if it has
+     * not, or an object containing the x and y values of how far out of bounds
+     * it has moved.
      *
-     * @param point An object containing an x and y value for the new dot location: { x: -, y: - }
-     */
-    put: function(point) {
-        this.x = point.x;
-        this.y = point.y;
-    },
-
-    /**
-     * Determines if the dot has moved out of bounds, if it has an object containing
-     * how far out on the X and Y coordinates it is.  Otherwise it returns false.
      * @returns An object containing how far out of bounds the dot is on the X and Y axis: { x: -, y: - }
      */
     isOutOfBounds: function() {
@@ -341,7 +337,7 @@ Engine.prototype = {
     lastCycleTime:    0,
     running: false,                            // The current status of the engine
     dots: [],                                // The dots to be updated with each engine cycle
-    sectors: [],
+    sectors: {},
 
     /**
      * Regenerate new random dots and start the engine cycling.
@@ -355,15 +351,6 @@ Engine.prototype = {
             this.dots.push(this.generateRandomDot(i+1));
         }
 
-//        this.dots.push(this.generateDot(1, 50, 150, Math.radians(0), 30));
-//        this.dots.push(this.generateDot(2, 150, 150, Math.radians(90), 30));
-//        this.dots.push(this.generateDot(3, 250, 150, Math.radians(180), 30));
-//        this.dots.push(this.generateDot(4, 350, 150, Math.radians(270), 30));
-//        this.dots.push(this.generateDot(5, 450, 150, Math.radians(360), 30));
-//        this.dots.push(this.generateDot(6, 550, 150, Math.radians(45), 30));
-//        this.dots.push(this.generateDot(7, 650, 150, Math.radians(135), 30));
-//        this.dots.push(this.generateDot(8, 750, 150, Math.radians(225), 30));
-
         this.clearCanvas = clearCanvas;
         this.showVectors(showVector);
         this.showInfo(showInfo);
@@ -374,18 +361,8 @@ Engine.prototype = {
         this.run();
     },
 
-    generateDot: function(id, x, y, direction, speed) {
-        var radius = 5;
-        var r = 250;
-        var g = 0;
-        var b = 200;
-        var fillStyle = "rgba(" + r + "," + g + "," + b +",0.40)";
-        var dot = new Dot(this, id, x, y, radius, fillStyle, direction, speed, this.ctx);
-        return dot;
-    },
-
     /**
-     * Allow the engine to proceed from a paused state.
+     * Resumes the engine animation cycle after a stopped state
      */
     proceed: function() {
         if (!this.running) {
@@ -405,8 +382,8 @@ Engine.prototype = {
     },
 
     /**
-     * If the engine is running, run through one cycle, and request another
-     * cycle.
+     * Runs through one cycle of the engine and requests another cycle if the
+     * running state is set to true.
      */
     run: function() {
         // If the engine is running, cycle the engine.
@@ -424,11 +401,12 @@ Engine.prototype = {
     },
 
     /**
-     * Divide the canvas up into small sectors that can be used to reduce the
+     * Divides the canvas up into small sectors that can be used to reduce the
      * number of checks a Dot needs to do to determine nearby dots for collision
      * detection.
      */
     buildSectors: function() {
+    	this.sectors = {};
         var sector = this.getSector({ x: this.canvas.width, y: this.canvas.height });
 
         for (var x=sector.x;x>=-1;x--) {
@@ -439,7 +417,8 @@ Engine.prototype = {
     },
 
     /**
-     * Determine which sector(s) a dot is in and add it to the sector list.
+     * Determine which sector(s) a dot is in and add the dot to the appropriate
+     * sector lists.
      *
      * @param dot The dot to register in the sector list.
      */
@@ -487,22 +466,8 @@ Engine.prototype = {
      * @param sector An x,y sector position.
      * @returns {String} The key for the sector.
      */
-    getSectorKey: function(sector) {
-        return sector.x + "_" + sector.y;
-    },
-
-    /**
-     * Returns the x,y coordinate boundaries of the sector provided.
-     * @param sector The x,y position of the sector
-     * @returns An object containing the top, left, bottom and right cooardinates of the sector: { t: -, l: -, b: -, r: - };
-     */
-    getSectorBounds: function(sector) {
-        return {
-            l: max(sector.x * this.sectorSize, 0),
-            t: max(secotr.y * this.sectorSize, 0),
-            r: min((sector.x+1) * this.sectorSize, this.canvas.width),
-            b: min((sector.y+1) * this.sectorSize, this.canvas.height)
-        };
+    getSectorKey: function(sectorPosition) {
+        return sectorPosition.x + "_" + sectorPosition.y;
     },
 
     /**
@@ -713,6 +678,11 @@ var initializeInterface = function() {
     dom('#showInfo').click(function() {
         var checked = dom('#showInfo').isChecked();
         dotEngine.showInfo(checked);
+    });
+
+    dom('#avoidEachOther').click(function() {
+        var checked = dom('#avoidEachOther').isChecked();
+        dotEngine.avoidEachOther(checked);
     });
 };
 
