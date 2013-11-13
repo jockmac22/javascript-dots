@@ -135,8 +135,6 @@ Various helper structures have been implemented to assist in making the UI more 
 
 This code is not my own, I pulled it off of the web, but it allows the animation engine to be more dependable across browsers, display smoother animations, and preserve battery life on mobile devices and laptops.  This call works by checking for the existence of a browser based *requestAnimationFrame* method.  If one is not found, a javascript Timeout is established that mimics the animation frame process, albeit less accurately and efficiently.
 
-NOTE: The script source can be found on [Paul Irish's website](http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/) with a better explanation, although I'm hesistant to credit him with its creation since the code has become ubiquitous, and is referenced in the same format elsewhere on the internet.
-
 ```javascript
 /**
  * Establish an animation frame request based on the browser we're in, if there is no
@@ -148,6 +146,8 @@ window.requestAnimFrame = function(callback) {
     };
 }();
 ```
+
+**NOTE:** The script source can be found on [Paul Irish's website](http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/) with a better explanation, although I'm hesistant to credit him with its creation since the code has become ubiquitous, and is referenced in the same format elsewhere on the internet.
 
 ### Querying the DOM (dom)
 
