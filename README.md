@@ -2,6 +2,8 @@
 
 A javascript prototyping example, written by Jocko MacGregor.
 
+__NOTE: There is a known issue with dots near the boundaries of each sector not acknowledging other dots during collision detection, which allow dots to pass through each other instead of bouncing.   Until it's fixed, I will refer to it at the "Ghost Dot Feature".__
+
 Index
 -----
 
