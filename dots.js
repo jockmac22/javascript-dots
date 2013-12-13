@@ -21,8 +21,9 @@ Math.radians = function(degrees) {
     return degrees * Math.PI / 180;
 };
 
-// Pre-calculate PI*2 to reduce the amount of calculations that are performed later.
-Math.PI2 = Math.PI * 2;
+// Pre-calculate PI*2 and PI/2 to reduce the amount of calculations that are performed later.
+Math.PI2 = Math.PI * 2;			// 360 Degrees
+Math.halfPI = Math.PI2 / 2;		// 90 Degrees
 
 
 /*******************************************************************************
@@ -49,12 +50,13 @@ function Dot(engine, id, x, y, radius, fillStyle, direction, speed, context) {
     this.radius = radius;
     this.direction = direction;
     this.speed = speed;
-    this.safeRange = this.radius * 2;
+    this.safeRange = this.radius;
     this.showVector = true;
     this.showInfo = true;
     this.avoidEachOther = false;
     this.vector = { x: 0, y: 0, xOff: 0, yOff: 0 };
     this.sectors = {};
+    this.lastCollision = null;
 
     this.setVector();
     this.engine.registerDotSectors(this);
@@ -91,10 +93,12 @@ Dot.prototype = {
         if (this.showInfo) {
             this.ctx.fillStyle = "#000";
             this.ctx.fillText('ID: ' + this.id, this.x-20, this.y - 60);
-            this.ctx.fillText('Speed: ' + this.speed, this.x-20, this.y - 50);
-            this.ctx.fillText('Radius: ' + this.radius, this.x-20, this.y - 40);
-            this.ctx.fillText('Direction: ' + Math.degrees(this.direction) % 360, this.x - 20, this.y - 30);
-            this.ctx.fillText('Safe Range: ' + this.safeRange, this.x - 20, this.y - 20);
+            this.ctx.fillText('X,Y: ' + Math.floor(this.x) + ", " + Math.floor(this.y), this.x-20, this.y - 50);
+            var sY = 40;
+            for (var s in this.sectors) {
+            	this.ctx.fillText('Sector: ' + s , this.x-20, this.y - sY);
+            	sY-=10;
+            }
         }
     },
 
@@ -112,16 +116,18 @@ Dot.prototype = {
 	        for (var s in this.sectors) {
 	            var sector = this.sectors[s];
 	            for (dotId in sector) {
-	                if (dotId != this.id) {
+	                if (dotId != this.id && (!this.lastCollision || this.lastCollision.id != dotId)) {
 	                    var dot = sector[dotId];
 	                    var dotDistance = this.calculateDistance(dot);
-	                    if (dotDistance <= this.safeRange) {
-	                        var angle = this.calculateAvoidanceAngle(dot);
+	                    if (dotDistance <= this.safeRange + dot.safeRange) {
 	                        this.offset({ x: -vector.xOff, y: -vector.yOff });
-	                        this.rotate(angle);
-	                        dot.rotate(angle);
+	                        var thisDirection = this.direction;
+	                        this.rotateTo(dot.direction);
+	                        dot.rotateTo(thisDirection);
 	                        this.offset({ x: vector.xOff, y: vector.yOff });
 	                    }
+
+	                    this.lastCollision = dot;
 	                }
 	            }
 	        }
@@ -179,23 +185,6 @@ Dot.prototype = {
         this.direction = radians % Math.PI2;
         this.setVector();
     },
-
-    /**
-     * Determines the amount of rotation necessary for this dot and another to
-     * avoid each other.
-     *
-     * @param dot The dot object to be avoided.
-     * @returns And angle (in radians) to adjust the rotation of the current dot.
-     */
-    calculateAvoidanceAngle: function(dot) {
-        var m1 = (dot.y - this.y) / (dot.x - this.x);
-        var x2 = dot.x + this.radius*3;
-        var y2 = dot.y + this.radius*3;
-        var m2 = (y2 - this.y) / (x2 - this.x);
-
-        return Math.atan((m1 - m2) / (1 - m1 * m2));
-    },
-
 
     /**
      * Recalculates the current dot vector to account for the delta time.
@@ -428,22 +417,24 @@ Engine.prototype = {
         }
         dot.sectors = {};
 
-        dot.calculateVector();
-
-        var s = this.getSectorKey(this.getSector(dot));
-        var sector = this.sectors[s];
+        var sectorKey = this.getSectorKey(this.getSector(dot));
+        var sector = this.sectors[sectorKey];
         if (sector) {
             sector[dot.id] = dot;
-            dot.sectors[s] = sector;
+            dot.sectors[sectorKey] = sector;
+        } else {
+        	console.info("Sector not defined for dot: " + sectorKey);
         }
 
-        for (var v=3;v>=0;v--) {
-            var dotVector = dot.calculateVector(this.direction+90*v);
-            s = this.getSectorKey(this.getSector(dotVector));
-            var sector = this.sectors[s];
+        for (var v=7;v>=0;v--) {
+            var dotVector = dot.calculateVector(Math.halfPI/2*v);
+            sectorKey = this.getSectorKey(this.getSector(dotVector));
+            var sector = this.sectors[sectorKey];
             if (sector) {
                 sector[dot.id] = dot;
-                dot.sectors[s] = sector;
+                dot.sectors[sectorKey] = sector;
+            } else {
+            	console.info("Sector not defined for vector: " + sectorKey);
             }
         }
     },
@@ -597,7 +588,7 @@ dom = function(e) {
                         this.objects[i].setAttribute(name, value);
                     }
                 }
-                return this.object[0].getAttribute(name);
+                return this.objects[0].getAttribute(name);
             }
             return null;
         },
@@ -660,14 +651,26 @@ var initializeInterface = function() {
         var showInfo = dom('#showInfo').isChecked();
         var avoidEachOther = dom('#avoidEachOther').isChecked();
         dotEngine.start(count, clearCanvas, showVector, showInfo, avoidEachOther);
+
+        dom('#stop').removeAttr('disabled');
+        dom('#start').attr('disabled', 'disabled');
+        dom('#proceed').attr('disabled', 'disabled');
     });
 
     dom('#proceed').click(function() {
         dotEngine.proceed();
+
+        dom('#stop').removeAttr('disabled');
+        dom('#start').attr('disabled', 'disabled');
+        dom('#proceed').attr('disabled', 'disabled');
     });
 
     dom('#stop').click(function() {
         dotEngine.stop();
+
+        dom('#proceed').removeAttr('disabled');
+        dom('#start').removeAttr('disabled');
+        dom('#stop').attr('disabled', 'disabled');
     });
 
     dom('#showVector').click(function() {
@@ -685,5 +688,3 @@ var initializeInterface = function() {
         dotEngine.avoidEachOther(checked);
     });
 };
-
-
