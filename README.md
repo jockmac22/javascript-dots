@@ -1,8 +1,14 @@
 #DOTS
 
-A javascript prototyping example, written by Jocko MacGregor.
+An animated collection of (semi)intelligent dots.  A javascript prototyping example, written by Jocko MacGregor.
 
-__NOTE: There is a known issue with dots near the boundaries of each sector not acknowledging other dots during collision detection, which allow dots to pass through each other instead of bouncing.   Until it's fixed, I will refer to it at the "Ghost Dot Feature".__
+The code in this repository generates an HTML5 canvas, and a random number of colored dots.  The dots are assigned a random vector and will deflect off the boundaries of the canvas and other dots (if the collision detection is turned on).
+This exemplifies my ability to:
+- Generate lean, task specific Javascript
+- Engage the Javascript prototype structure as a class heirarchy
+- Employ complex algorithms relating to geometry, animation, collision detection
+- Minimize computations through intelligent object management
+- Query and manipulate the DOM in a structured, and code friendly manner
 
 Index
 -----
@@ -14,6 +20,7 @@ Index
     - [Animation Frame Handling](#animation-frame-handling)
     - [Querying the DOM](#querying-the-dom-dom)
     - [DOM Attributes](#dom-attributes)
+  - [Known Issues](#known-issues)
 
 ##The Classes
 
@@ -188,3 +195,7 @@ Attributes can be removed as well.
 ```javascript
   dom('#some-dom-object-id').removeAttr('selected');
 ```
+
+##Known Issues
+
+There is a known issue with dots near the boundaries of each sector not acknowledging other dots during collision detection, which allow dots to pass through each other instead of bouncing.   Until it's fixed, I will refer to it at the "Ghost Dot Feature".
