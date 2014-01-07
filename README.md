@@ -6,7 +6,7 @@ The code in this repository generates an HTML5 canvas, and a random number of co
 This exemplifies my ability to:
 - Generate lean, task specific Javascript
 - Engage the Javascript prototype structure as a class heirarchy
-- Employ complex algorithms relating to geometry, animation, collision detection
+- Employ complex algorithms relating to geometry, animation and collision detection
 - Minimize computations through intelligent object management
 - Query and manipulate the DOM in a structured, and code friendly manner
 
