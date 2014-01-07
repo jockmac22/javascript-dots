@@ -3,12 +3,15 @@
 An animated collection of (semi)intelligent dots.  A javascript prototyping example, written by Jocko MacGregor.
 
 The code in this repository generates an HTML5 canvas, and a random number of colored dots.  The dots are assigned a random vector and will deflect off the boundaries of the canvas and other dots (if the collision detection is turned on).
+
 This exemplifies my ability to:
 - Generate lean, task specific Javascript
 - Engage the Javascript prototype structure as a class heirarchy
 - Employ complex algorithms relating to geometry, animation and collision detection
 - Minimize computations through intelligent object management
 - Query and manipulate the DOM in a structured, and code friendly manner
+
+With the exception of a few snippets acknowledged in the documentation below, all code was conceived and written by me.
 
 Index
 -----
