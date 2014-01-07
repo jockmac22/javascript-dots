@@ -16,6 +16,7 @@ With the exception of a few snippets acknowledged in the documentation below, al
 Index
 -----
 
+  - [Installation](#installation)
   - [The Classes](#the-classes)
     - [Dot](#dot-class)
     - [Engine](#engine-class)
@@ -24,6 +25,13 @@ Index
     - [Querying the DOM](#querying-the-dom-dom)
     - [DOM Attributes](#dom-attributes)
   - [Known Issues](#known-issues)
+
+##Installation
+
+It's easy, just two steps:
+
+1. Clone this repository into a directory on your computer
+2. Open the index.html inside of Firefox
 
 ##The Classes
 
@@ -201,4 +209,7 @@ Attributes can be removed as well.
 
 ##Known Issues
 
-There is a known issue with dots near the boundaries of each sector not acknowledging other dots during collision detection, which allow dots to pass through each other instead of bouncing.   Until it's fixed, I will refer to it at the "Ghost Dot Feature".
+I wrote this code on a whim, and in less than a day, and I haven't had much time to commit to it since then.  So, inevitably, there are issues.  Here are the ones I can identify that I hope to fix soon.
+
+1. There is a known issue with dots near the boundaries of each sector not acknowledging other dots during collision detection, which allow dots to pass through each other instead of bouncing.   Until it's fixed, I will refer to it at the "Ghost Dot" Feature.
+2. When two dots have a shallow collision vector, they don't reflect as expected and create a "sticky" effect for a brief moment.  I call this the "Sticky Dot" Feature.
