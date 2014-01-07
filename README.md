@@ -10,6 +10,7 @@ This exemplifies my ability to:
 - Employ complex algorithms relating to geometry, animation and collision detection
 - Minimize computations through intelligent object management
 - Query and manipulate the DOM in a structured, and code friendly manner
+- Document my code
 
 With the exception of a few snippets acknowledged in the documentation below, all code was conceived and written by me.
 
